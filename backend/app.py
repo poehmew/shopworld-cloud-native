@@ -7,13 +7,18 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-DB_USER = "shopworlduser"
-DB_PASSWORD = "ShopWorld123!"
-DB_HOST = "35.205.42.214"
-DB_NAME = "shopworld"
+DB_USER = os.environ.get("DB_USER", "shopworlduser")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "ShopWorld123!")
+DB_NAME = os.environ.get("DB_NAME", "shopworld")
+INSTANCE_CONNECTION_NAME = os.environ.get(
+    "INSTANCE_CONNECTION_NAME",
+    "shopworld-demo:europe-west1:shopworld-mysql"
+)
+
+DB_HOST = f"/cloudsql/{INSTANCE_CONNECTION_NAME}"
 
 engine = create_engine(
-    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@localhost/{DB_NAME}?unix_socket={DB_HOST}"
 )
 @app.get("/api/health")
 def health():
