@@ -1,3 +1,4 @@
+from sqlalchemy import create_engine, text
 import os
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request
@@ -6,12 +7,14 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-PRODUCTS = [
-    {"id": 1, "name": "Cloud Hoodie", "price": 59.0, "category": "Apparel", "image": "https://storage.googleapis.com/shopworld-demo-assets/hoodie.jpg"},
-    {"id": 2, "name": "Smart Backpack", "price": 89.0, "category": "Accessories", "image": "https://storage.googleapis.com/shopworld-demo-assets/backpack.jpg"},
-    {"id": 3, "name": "Wireless Keyboard", "price": 49.0, "category": "Electronics", "image": "https://storage.googleapis.com/shopworld-demo-assets/keyboard.jpg"},
-]
+DB_USER = "shopworlduser"
+DB_PASSWORD = "ShopWorld123!"
+DB_HOST = "35.205.42.214"
+DB_NAME = "shopworld"
 
+engine = create_engine(
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+)
 @app.get("/api/health")
 def health():
     return jsonify({
@@ -23,8 +26,29 @@ def health():
 
 @app.get("/api/products")
 def products():
-    # In production this endpoint would read from Cloud SQL.
-    return jsonify({"products": PRODUCTS, "source": "demo-api"})
+
+    with engine.connect() as conn:
+
+        result = conn.execute(text("""
+            SELECT id,name,category,price,image
+            FROM products
+        """))
+
+        products = []
+
+        for row in result:
+            products.append({
+                "id": row.id,
+                "name": row.name,
+                "category": row.category,
+                "price": float(row.price),
+                "image": row.image
+            })
+
+    return jsonify({
+        "products": products,
+        "source": "cloud-sql"
+    })
 
 @app.post("/api/events")
 def events():
