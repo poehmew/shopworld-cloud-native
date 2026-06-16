@@ -43,7 +43,16 @@ function App() {
         <div><Database/><b>Data-driven</b><p>Cloud SQL + BigQuery analytics.</p></div>
       </section>
       <section className="products">
-        {products.map((p) => <article key={p.id}><h3>{p.name}</h3><p>{p.category}</p><strong>${p.price}</strong></article>)}
+        {products.map((p) => (
+          <article key={p.id}>
+            {p.image && <img src={p.image} alt={p.name} className="product-img" />}
+              <h3>{p.name}</h3>
+              <p>{p.category}</p>
+              <strong>${p.price}</strong>
+              <button className="cart-btn">Add to Cart</button>
+          </article>
+        ))}
+
       </section>
     </main>
   );
