@@ -1,0 +1,74 @@
+name: Build and Deploy ShopWorld to Cloud Run
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: europe-west3
+  AR_REPO: shopworld
+  BACKEND_SERVICE: shopworld-backend
+  FRONTEND_SERVICE: shopworld-frontend
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+
+      - name: Create Artifact Registry repository if missing
+        run: |
+          gcloud artifacts repositories describe $AR_REPO --location=$REGION || \
+          gcloud artifacts repositories create $AR_REPO --repository-format=docker --location=$REGION
+
+      - name: Build and push backend image
+        run: |
+          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/backend:${{ github.sha }} ./backend
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/backend:${{ github.sha }}
+
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy $BACKEND_SERVICE \
+            --image $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/backend:${{ github.sha }} \
+            --region $REGION \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars ENV=production
+
+      - name: Capture backend URL
+        id: backend
+        run: |
+          URL=$(gcloud run services describe $BACKEND_SERVICE --region $REGION --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Build and push frontend image
+        run: |
+          docker build --build-arg VITE_API_BASE_URL=${{ steps.backend.outputs.url }} \
+            -t $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/frontend:${{ github.sha }} ./frontend
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/frontend:${{ github.sha }}
+
+      - name: Deploy frontend to Cloud Run
+        run: |
+          gcloud run deploy $FRONTEND_SERVICE \
+            --image $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/frontend:${{ github.sha }} \
+            --region $REGION \
+            --platform managed \
+            --allow-unauthenticated
