@@ -3,7 +3,9 @@ import { createRoot } from "react-dom/client";
 import { ShoppingBag, ShieldCheck, Zap, Database } from "lucide-react";
 import "./style.css";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://shopworld-backend-37435775554.europe-west1.run.app";
 const fallback = [
   { id: 1, name: "Cloud Hoodie", price: 59, category: "Apparel" },
   { id: 2, name: "Smart Backpack", price: 89, category: "Accessories" },
