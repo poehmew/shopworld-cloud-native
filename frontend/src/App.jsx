@@ -1,0 +1,50 @@
+import React, { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { ShoppingBag, ShieldCheck, Zap, Database } from "lucide-react";
+import "./style.css";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const fallback = [
+  { id: 1, name: "Cloud Hoodie", price: 59, category: "Apparel" },
+  { id: 2, name: "Smart Backpack", price: 89, category: "Accessories" },
+  { id: 3, name: "Wireless Keyboard", price: 49, category: "Electronics" },
+];
+
+function App() {
+  const [products, setProducts] = useState(fallback);
+  const [status, setStatus] = useState("demo fallback");
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/products`)
+      .then((r) => r.json())
+      .then((data) => {
+        setProducts(data.products || fallback);
+        setStatus("connected to Cloud Run backend API");
+      })
+      .catch(() => setStatus("frontend running; backend API not configured"));
+  }, []);
+
+  return (
+    <main className="page">
+      <section className="hero">
+        <div>
+          <p className="eyebrow">ShopWorld modernization PoC</p>
+          <h1>Cloud-native e-commerce demo on Google Cloud Run</h1>
+          <p className="sub">Frontend + Backend API microservices prepared for Cloud SQL, Cloud Storage and BigQuery integration.</p>
+          <div className="badges"><span>{status}</span><span>serverless</span><span>auto scaling</span></div>
+        </div>
+        <ShoppingBag size={96} />
+      </section>
+      <section className="metrics">
+        <div><Zap/><b>Scalable</b><p>Cloud Run handles traffic spikes.</p></div>
+        <div><ShieldCheck/><b>Secure</b><p>IAM, IAP, Cloud Armor, Secret Manager.</p></div>
+        <div><Database/><b>Data-driven</b><p>Cloud SQL + BigQuery analytics.</p></div>
+      </section>
+      <section className="products">
+        {products.map((p) => <article key={p.id}><h3>{p.name}</h3><p>{p.category}</p><strong>${p.price}</strong></article>)}
+      </section>
+    </main>
+  );
+}
+
+createRoot(document.getElementById("root")).render(<App />);
