@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { ShoppingBag, ShieldCheck, Zap, Database } from "lucide-react";
 import "./style.css";
+import { auth, provider } from "./firebase";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ||
@@ -18,8 +20,9 @@ function App() {
   const [status, setStatus] = useState("demo fallback");
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [user, setUser] = useState(null);
 
-  useEffect(() => {
+ useEffect(() => {
   fetch(`${API_BASE}/api/products`)
     .then((r) => r.json())
     .then((data) => {
@@ -31,7 +34,20 @@ function App() {
   fetch(`${API_BASE}/api/orders`)
     .then((r) => r.json())
     .then((data) => setOrders(data.orders || []));
+
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser);
+  });
+
+  return () => unsubscribe();
 }, []);
+  const loginWithGoogle = async () => {
+  await signInWithPopup(auth, provider);
+};
+
+const logout = async () => {
+  await signOut(auth);
+};
   const removeFromCart = (indexToRemove) => {
     setCart(
       cart.filter((_, index) => index !== indexToRemove)
@@ -57,6 +73,24 @@ function App() {
 
   return (
     <main className="page">
+    <section className="cart-summary">
+  {user ? (
+    <>
+      <h2>Welcome, {user.displayName}</h2>
+      <p>{user.email}</p>
+      <button className="cart-btn" onClick={logout}>
+        Logout
+      </button>
+    </>
+  ) : (
+    <>
+      <h2>Login</h2>
+      <button className="cart-btn" onClick={loginWithGoogle}>
+        Sign in with Google
+      </button>
+    </>
+  )}
+</section>
       <section className="hero">
         <div>
           <p className="eyebrow">ShopWorld modernization PoC</p>
