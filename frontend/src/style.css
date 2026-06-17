@@ -38,3 +38,13 @@ h1 { font-size: 52px; line-height: 1.02; margin: 0 0 18px; max-width: 820px; }
 .cart-summary h2 {
   margin-top: 0;
 }
+.cart-list {
+  margin: 16px 0;
+}
+
+.cart-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
