@@ -42,7 +42,7 @@ function App() {
       }),
     });
 
-    alert(`${product.name} added to cart and saved to Cloud SQL`);
+    console.log(`${product.name} added to cart`);
   };
 
   return (
