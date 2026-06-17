@@ -1,3 +1,18 @@
+import React, { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { ShoppingBag, ShieldCheck, Zap, Database } from "lucide-react";
+import "./style.css";
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://shopworld-backend-37435775554.europe-west1.run.app";
+
+const fallback = [
+  { id: 1, name: "Cloud Hoodie", price: 59, category: "Apparel" },
+  { id: 2, name: "Smart Backpack", price: 89, category: "Accessories" },
+  { id: 3, name: "Wireless Keyboard", price: 49, category: "Electronics" },
+];
+
 function App() {
   const [products, setProducts] = useState(fallback);
   const [status, setStatus] = useState("demo fallback");
@@ -69,3 +84,5 @@ function App() {
     </main>
   );
 }
+
+createRoot(document.getElementById("root")).render(<App />);
