@@ -65,28 +65,31 @@ def events():
 @app.get("/")
 def index():
     return jsonify({"message": "ShopWorld Backend API", "docs": ["/api/health", "/api/products"]})
-@app.post("/api/orders")
-def create_order():
-    payload = request.get_json(silent=True) or {}
-
-    product_id = payload.get("product_id")
-    product_name = payload.get("product_name")
-    price = payload.get("price")
-    quantity = payload.get("quantity", 1)
-
+@app.get("/api/orders")
+def get_orders():
     with engine.connect() as conn:
-        conn.execute(text("""
-            INSERT INTO orders (product_id, product_name, price, quantity)
-            VALUES (:product_id, :product_name, :price, :quantity)
-        """), {
-            "product_id": product_id,
-            "product_name": product_name,
-            "price": price,
-            "quantity": quantity
-        })
-        conn.commit()
+        result = conn.execute(text("""
+            SELECT id,
+                   product_name,
+                   price,
+                   quantity,
+                   created_at
+            FROM orders
+            ORDER BY created_at DESC
+        """))
 
-    return jsonify({"success": True, "message": "Order saved to Cloud SQL"}), 201
+        orders = []
+
+        for row in result:
+            orders.append({
+                "id": row.id,
+                "product_name": row.product_name,
+                "price": float(row.price),
+                "quantity": row.quantity,
+                "created_at": str(row.created_at)
+            })
+
+    return jsonify({"orders": orders})
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))
     app.run(host="0.0.0.0", port=port)
