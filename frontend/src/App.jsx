@@ -27,7 +27,11 @@ function App() {
       })
       .catch(() => setStatus("frontend running; backend API not configured"));
   }, []);
-
+  const removeFromCart = (indexToRemove) => {
+    setCart(
+      cart.filter((_, index) => index !== indexToRemove)
+    );
+  };
   const addToCart = async (product) => {
     await fetch(`${API_BASE}/api/orders`, {
       method: "POST",
@@ -79,8 +83,18 @@ function App() {
             {cart.map((item, index) => (
               <div className="cart-row" key={index}>
                 <span>{item.name}</span>
+
+                <div>
                   <strong>${item.price}</strong>
+
+                  <button
+                    className="remove-btn"
+                    onClick={() => removeFromCart(index)}
+                  >
+                    Remove
+                  </button>
                 </div>
+              </div>
               ))}
             </div>
           )}
