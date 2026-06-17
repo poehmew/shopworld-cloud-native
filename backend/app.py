@@ -1,3 +1,4 @@
+from google.cloud import bigquery
 from sqlalchemy import create_engine, text
 import os
 from datetime import datetime, timezone
@@ -6,6 +7,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+bq_client = bigquery.Client()
 
 DB_USER = os.environ.get("DB_USER", "shopworlduser")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "ShopWorld123!")
@@ -58,9 +60,22 @@ def products():
 @app.post("/api/events")
 def events():
     payload = request.get_json(silent=True) or {}
-    # In production this event could be exported to BigQuery for analytics.
-    app.logger.info("shopworld_event=%s", payload)
-    return jsonify({"accepted": True, "message": "Event logged for analytics"}), 202
+
+    rows = [{
+        "id": int(datetime.now().timestamp()),
+        "event_name": payload.get("event_name"),
+        "product_name": payload.get("product_name"),
+        "created_at": datetime.utcnow().isoformat()
+    }]
+
+    table_id = "shopworld-demo.shopworld_analytics.user_events"
+
+    errors = bq_client.insert_rows_json(table_id, rows)
+
+    if errors:
+        return jsonify({"success": False, "errors": errors}), 500
+
+    return jsonify({"success": True}), 201
 
 @app.get("/")
 def index():
