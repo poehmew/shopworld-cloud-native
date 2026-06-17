@@ -17,6 +17,7 @@ function App() {
   const [products, setProducts] = useState(fallback);
   const [status, setStatus] = useState("demo fallback");
   const [cart, setCart] = useState([]);
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/products`)
