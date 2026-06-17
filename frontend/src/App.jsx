@@ -108,6 +108,15 @@ function App() {
           Total: $
           {cart.reduce((total, item) => total + Number(item.price), 0)}
         </p>
+       <button
+  className="cart-btn"
+  onClick={() => {
+    alert("Checkout completed");
+    setCart([]);
+  }}
+>
+  Checkout
+</button>
       </section>
       <section className="cart-summary">
         <h2>Order History</h2>
