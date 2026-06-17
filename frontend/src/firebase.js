@@ -2,12 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY_HERE",
+  apiKey: "AIzaSyB54yypPxnUelwU9avwpYtVjhatc6aG2kY",
   authDomain: "shopworld-demo.firebaseapp.com",
   projectId: "shopworld-demo",
-  storageBucket: "shopworld-demo.appspot.com",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID_HERE",
-  appId: "PASTE_YOUR_APP_ID_HERE"
+  storageBucket: "shopworld-demo.firebasestorage.app",
+  messagingSenderId: "37435775554",
+  appId: "1:37435775554:web:a37994751770cb8e54abdb",
+  measurementId: "G-ZKY7ZPGLX3"
 };
 
 const app = initializeApp(firebaseConfig);
