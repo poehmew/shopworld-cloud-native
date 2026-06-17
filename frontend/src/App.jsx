@@ -110,10 +110,21 @@ function App() {
         </p>
        <button
   className="cart-btn"
-  onClick={() => {
-    alert("Checkout completed");
-    setCart([]);
-  }}
+  onClick={async () => {
+  await fetch(`${API_BASE}/api/events`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      event_name: "checkout",
+      product_name: cart.map((item) => item.name).join(", "),
+    }),
+  });
+
+  alert("Checkout completed");
+  setCart([]);
+}}
 >
   Checkout
 </button>
