@@ -43,6 +43,7 @@ function App() {
     });
 
     console.log(`${product.name} added to cart`);
+    setCart((currentCart) => [...currentCart, product]);
   };
 
   return (
