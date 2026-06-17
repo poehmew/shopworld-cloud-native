@@ -20,14 +20,18 @@ function App() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/products`)
-      .then((r) => r.json())
-      .then((data) => {
-        setProducts(data.products || fallback);
-        setStatus("connected to Cloud Run backend API");
-      })
-      .catch(() => setStatus("frontend running; backend API not configured"));
-  }, []);
+  fetch(`${API_BASE}/api/products`)
+    .then((r) => r.json())
+    .then((data) => {
+      setProducts(data.products || fallback);
+      setStatus("connected to Cloud Run backend API");
+    })
+    .catch(() => setStatus("frontend running; backend API not configured"));
+
+  fetch(`${API_BASE}/api/orders`)
+    .then((r) => r.json())
+    .then((data) => setOrders(data.orders || []));
+}, []);
   const removeFromCart = (indexToRemove) => {
     setCart(
       cart.filter((_, index) => index !== indexToRemove)
@@ -104,6 +108,16 @@ function App() {
           Total: $
           {cart.reduce((total, item) => total + Number(item.price), 0)}
         </p>
+      </section>
+      <section className="cart-summary">
+        <h2>Order History</h2>
+
+        {orders.slice(0, 10).map((o) => (
+          <div className="cart-row" key={o.id}>
+            <span>{o.product_name}</span>
+            <strong>${o.price}</strong>
+          </div>
+        ))}
       </section>
       <section className="products">
         {products.map((p) => (
