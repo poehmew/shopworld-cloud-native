@@ -8,8 +8,8 @@ terraform {
 }
 
 provider "google" {
-  project = "shopworld-demo"
-  region  = "europe-west1"
+  project = var.project_id
+  region  = var.region
 }
 
 variable "project_id" {
