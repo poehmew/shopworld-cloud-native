@@ -16,6 +16,7 @@ const fallback = [
 function App() {
   const [products, setProducts] = useState(fallback);
   const [status, setStatus] = useState("demo fallback");
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/products`)
@@ -67,7 +68,14 @@ function App() {
         <div><ShieldCheck/><b>Secure</b><p>IAM, IAP, Cloud Armor, Secret Manager.</p></div>
         <div><Database/><b>Data-driven</b><p>Cloud SQL + BigQuery analytics.</p></div>
       </section>
-
+      <section className="cart-summary">
+        <h2>Shopping Cart</h2>
+        <p>Items: {cart.length}</p>
+        <p>
+          Total: $
+          {cart.reduce((total, item) => total + Number(item.price), 0)}
+        </p>
+      </section>
       <section className="products">
         {products.map((p) => (
           <article key={p.id}>
