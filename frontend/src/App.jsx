@@ -69,10 +69,23 @@ function App() {
         <div><ShieldCheck/><b>Secure</b><p>IAM, IAP, Cloud Armor, Secret Manager.</p></div>
         <div><Database/><b>Data-driven</b><p>Cloud SQL + BigQuery analytics.</p></div>
       </section>
-      <section className="cart-summary">
-        <h2>Shopping Cart</h2>
-        <p>Items: {cart.length}</p>
-        <p>
+     <section className="cart-summary">
+       <h2>Shopping Cart</h2>
+
+       {cart.length === 0 ? (
+         <p>No items in cart yet.</p>
+        ) : (
+          <div className="cart-list">
+            {cart.map((item, index) => (
+              <div className="cart-row" key={index}>
+                <span>{item.name}</span>
+                  <strong>${item.price}</strong>
+                </div>
+              ))}
+            </div>
+          )}
+          <p>Items: {cart.length}</p>
+          <p>
           Total: $
           {cart.reduce((total, item) => total + Number(item.price), 0)}
         </p>
